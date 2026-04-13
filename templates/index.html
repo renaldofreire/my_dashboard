@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — charisrv</title>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <header>
+    <span class="site-title">charisrv / dashboard</span>
+    <span class="clock" id="clock"></span>
+  </header>
+
+  <main>
+
+    <!-- Row 1: Bitcoin + Câmbio -->
+    <section class="row">
+      <div class="card" id="bitcoin-card"
+           hx-get="/api/bitcoin"
+           hx-trigger="load, every 300s"
+           hx-swap="innerHTML">
+        <span class="loading">carregando bitcoin…</span>
+      </div>
+
+      <div class="card" id="exchange-card"
+           hx-get="/api/exchange"
+           hx-trigger="load, every 300s"
+           hx-swap="innerHTML">
+        <span class="loading">carregando câmbio…</span>
+      </div>
+    </section>
+
+    <!-- Row 2: Hacker News -->
+    <section class="row full">
+      <div class="card" id="hn-card"
+           hx-get="/api/hackernews"
+           hx-trigger="load, every 600s"
+           hx-swap="innerHTML">
+        <span class="loading">carregando hacker news…</span>
+      </div>
+    </section>
+
+    <!-- Próximas rows: clima, github, futebol (em breve) -->
+
+  </main>
+
+  <script>
+    // Relógio em tempo real
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("clock").textContent =
+        now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // HTMX: renderiza JSON das APIs como HTML nos cards
+    document.body.addEventListener("htmx:afterRequest", function(evt) {
+      const el = evt.detail.elt;
+      const id = el.id;
+
+      try {
+        const data = JSON.parse(evt.detail.xhr.responseText);
+
+        if (id === "bitcoin-card") {
+          el.innerHTML = data.error
+            ? `<span class="error">Bitcoin indisponível</span>`
+            : `<div class="card-label">Bitcoin</div>
+               <div class="card-value">$ ${data.usd.toLocaleString("en-US")}</div>
+               <div class="card-sub">USD</div>`;
+        }
+
+        if (id === "exchange-card") {
+          el.innerHTML = data.error
+            ? `<span class="error">Câmbio indisponível</span>`
+            : `<div class="card-label">Câmbio</div>
+               <div class="rate-row">
+                 <span class="rate-pair">USD → BRL</span>
+                 <span class="rate-val">R$ ${data.usd_brl.toFixed(2)}</span>
+               </div>
+               <div class="rate-row">
+                 <span class="rate-pair">GBP → BRL</span>
+                 <span class="rate-val">R$ ${data.gbp_brl.toFixed(2)}</span>
+               </div>`;
+        }
+
+        if (id === "hn-card") {
+          const items = data.stories.map((s, i) =>
+            `<a class="hn-item" href="${s.url || 'https://news.ycombinator.com/item?id=' + s.id}" target="_blank">
+               <span class="hn-rank">${i + 1}</span>
+               <span class="hn-title">${s.title}</span>
+               <span class="hn-score">▲ ${s.score}</span>
+             </a>`
+          ).join("");
+          el.innerHTML = `<div class="card-label">Hacker News</div>${items}`;
+        }
+
+      } catch (e) {
+        // Se não for JSON (ex: erro de servidor), deixa o conteúdo como está
+      }
+    });
+  </script>
+</body>
+</html>
