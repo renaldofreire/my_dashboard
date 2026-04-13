@@ -17,12 +17,13 @@ def _fetch_item(item_id):
 @cached(_cache)
 def get_top_stories(limit=5):
     try:
+        # Busca uma lista maior de IDs para podermos filtrar por upvotes
         r = requests.get(f"{BASE_URL}/topstories.json", timeout=5)
         r.raise_for_status()
-        ids = r.json()[:limit]
+        ids = r.json()[:30]
 
         stories = []
-        with ThreadPoolExecutor(max_workers=limit) as executor:
+        with ThreadPoolExecutor(max_workers=30) as executor:
             futures = {executor.submit(_fetch_item, i): i for i in ids}
             for future in as_completed(futures):
                 try:
@@ -30,10 +31,10 @@ def get_top_stories(limit=5):
                 except Exception:
                     pass
 
-        # Mantém a ordem original (as_completed não garante ordem)
-        id_order = {item_id: idx for idx, item_id in enumerate(ids)}
-        stories.sort(key=lambda s: id_order.get(s.get("id"), 999))
+        # Filtra apenas itens válidos (não None e que tenham score) e ordena por upvotes (score)
+        stories = [s for s in stories if s and "score" in s]
+        stories.sort(key=lambda s: s.get("score", 0), reverse=True)
 
-        return {"stories": stories, "error": None}
+        return {"stories": stories[:limit], "error": None}
     except Exception as e:
         return {"stories": [], "error": str(e)}

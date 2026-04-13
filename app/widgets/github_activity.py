@@ -52,7 +52,7 @@ def _summarize(event):
 
 
 @cached(_cache)
-def get_recent_activity(limit=6):
+def get_recent_activity(limit=5):
     try:
         r = requests.get(
             f"https://api.github.com/users/{GITHUB_USERNAME}/events/public",
