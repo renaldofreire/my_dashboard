@@ -1,40 +1,48 @@
 import requests
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 from cachetools import TTLCache, cached
 from config import CACHE_TTL_MEDIUM
 
 _cache = TTLCache(maxsize=10, ttl=CACHE_TTL_MEDIUM)
 
-BASE_URL = "https://hacker-news.firebaseio.com/v0"
-
-
-def _fetch_item(item_id):
-    r = requests.get(f"{BASE_URL}/item/{item_id}.json", timeout=5)
-    r.raise_for_status()
-    return r.json()
+# API Algolia para busca avançada no Hacker News
+SEARCH_URL = "https://hn.algolia.com/api/v1/search"
 
 
 @cached(_cache)
 def get_top_stories(limit=5):
     try:
-        # Busca uma lista maior de IDs para podermos filtrar por upvotes
-        r = requests.get(f"{BASE_URL}/topstories.json", timeout=5)
+        # Timestamp de 24 horas atrás
+        yesterday_ts = int(time.time()) - (24 * 60 * 60)
+
+        params = {
+            "tags": "story",
+            "numericFilters": f"created_at_i>{yesterday_ts}",
+            "hitsPerPage": 20,  # Pegamos uma amostra razoável para garantir qualidade
+        }
+
+        r = requests.get(SEARCH_URL, params=params, timeout=5)
         r.raise_for_status()
-        ids = r.json()[:30]
+        data = r.json()
+
+        # A API Algolia já retorna os hits. Vamos garantir a ordenação por score (upvotes)
+        hits = data.get("hits", [])
+        hits.sort(key=lambda x: x.get("points", 0), reverse=True)
 
         stories = []
-        with ThreadPoolExecutor(max_workers=30) as executor:
-            futures = {executor.submit(_fetch_item, i): i for i in ids}
-            for future in as_completed(futures):
-                try:
-                    stories.append(future.result())
-                except Exception:
-                    pass
+        for hit in hits[:limit]:
+            stories.append(
+                {
+                    "id": hit.get("objectID"),
+                    "title": hit.get("title"),
+                    "url": hit.get("url")
+                    or f"https://news.ycombinator.com/item?id={hit.get('objectID')}",
+                    "score": hit.get("points"),
+                    "by": hit.get("author"),
+                    "time": hit.get("created_at_i"),
+                }
+            )
 
-        # Filtra apenas itens válidos (não None e que tenham score) e ordena por upvotes (score)
-        stories = [s for s in stories if s and "score" in s]
-        stories.sort(key=lambda s: s.get("score", 0), reverse=True)
-
-        return {"stories": stories[:limit], "error": None}
+        return {"stories": stories, "error": None}
     except Exception as e:
         return {"stories": [], "error": str(e)}
