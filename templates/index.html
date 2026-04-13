@@ -35,7 +35,27 @@
       </div>
     </section>
 
-    <!-- Row 2: Hacker News -->
+    <!-- Row 2: Clima -->
+    <section class="row full">
+      <div class="card" id="weather-card"
+           hx-get="/api/weather?city=fortaleza"
+           hx-trigger="load, every 600s"
+           hx-swap="innerHTML">
+        <span class="loading">carregando clima…</span>
+      </div>
+    </section>
+
+    <!-- Row 3: GitHub -->
+    <section class="row full">
+      <div class="card" id="github-card"
+           hx-get="/api/github"
+           hx-trigger="load, every 600s"
+           hx-swap="innerHTML">
+        <span class="loading">carregando github…</span>
+      </div>
+    </section>
+
+    <!-- Row 4: Hacker News -->
     <section class="row full">
       <div class="card" id="hn-card"
            hx-get="/api/hackernews"
@@ -44,8 +64,6 @@
         <span class="loading">carregando hacker news…</span>
       </div>
     </section>
-
-    <!-- Próximas rows: clima, github, futebol (em breve) -->
 
   </main>
 
@@ -59,14 +77,15 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // HTMX: renderiza JSON das APIs como HTML nos cards
+    // Renderiza JSON das APIs como HTML nos cards
     document.body.addEventListener("htmx:afterRequest", function(evt) {
-      const el = evt.detail.elt;
-      const id = el.id;
+      const el   = evt.detail.elt;
+      const id   = el.id;
 
       try {
         const data = JSON.parse(evt.detail.xhr.responseText);
 
+        // --- Bitcoin ---
         if (id === "bitcoin-card") {
           el.innerHTML = data.error
             ? `<span class="error">Bitcoin indisponível</span>`
@@ -75,6 +94,7 @@
                <div class="card-sub">USD</div>`;
         }
 
+        // --- Câmbio ---
         if (id === "exchange-card") {
           el.innerHTML = data.error
             ? `<span class="error">Câmbio indisponível</span>`
@@ -89,6 +109,58 @@
                </div>`;
         }
 
+        // --- Clima ---
+        if (id === "weather-card") {
+          if (data.error) {
+            el.innerHTML = `<span class="error">Clima indisponível</span>`;
+            return;
+          }
+          const rainBadge = data.will_rain
+            ? `<span class="badge badge-rain">🌧 vai chover hoje</span>`
+            : `<span class="badge badge-clear">☀ sem chuva prevista</span>`;
+
+          el.innerHTML = `
+            <div class="weather-header">
+              <div>
+                <div class="card-label">Clima</div>
+                <div class="weather-city-row">
+                  <span class="weather-city" id="weather-city-label">${data.city}</span>
+                  <button class="city-toggle" id="city-toggle-btn" onclick="toggleCity()">
+                    trocar cidade
+                  </button>
+                </div>
+              </div>
+              ${rainBadge}
+            </div>
+            <div class="weather-body">
+              <div class="weather-temp">${data.temp}°C</div>
+              <div class="weather-desc">${data.description}</div>
+              <div class="weather-range">↑ ${data.temp_max}° ↓ ${data.temp_min}°</div>
+            </div>
+            <div class="weather-footer">
+              Prob. chuva: ${data.precip_prob ?? "—"}% · Precip. atual: ${data.precip} mm
+            </div>`;
+        }
+
+        // --- GitHub ---
+        if (id === "github-card") {
+          if (data.error || !data.events.length) {
+            el.innerHTML = `<span class="error">GitHub indisponível</span>`;
+            return;
+          }
+          const items = data.events.map(e =>
+            `<a class="gh-item" href="${e.url}" target="_blank">
+               <span class="gh-type">${e.type}</span>
+               <span class="gh-repo">${e.repo}</span>
+               <span class="gh-detail">${e.detail}</span>
+             </a>`
+          ).join("");
+          el.innerHTML = `
+            <div class="card-label">GitHub — ${data.username}</div>
+            ${items}`;
+        }
+
+        // --- Hacker News ---
         if (id === "hn-card") {
           const items = data.stories.map((s, i) =>
             `<a class="hn-item" href="${s.url || 'https://news.ycombinator.com/item?id=' + s.id}" target="_blank">
@@ -101,9 +173,20 @@
         }
 
       } catch (e) {
-        // Se não for JSON (ex: erro de servidor), deixa o conteúdo como está
+        // erro de parse — ignora silenciosamente
       }
     });
+
+    // Toggle Fortaleza / Maracanaú
+    let currentCity = "fortaleza";
+
+    function toggleCity() {
+      currentCity = currentCity === "fortaleza" ? "maracanau" : "fortaleza";
+      const card = document.getElementById("weather-card");
+      card.setAttribute("hx-get", `/api/weather?city=${currentCity}`);
+      card.innerHTML = `<span class="loading">carregando clima…</span>`;
+      htmx.trigger(card, "load");
+    }
   </script>
 </body>
 </html>
