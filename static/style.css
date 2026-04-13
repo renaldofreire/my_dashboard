@@ -8,6 +8,7 @@
   --accent:    #f0a500;
   --green:     #4caf50;
   --red:       #e05252;
+  --blue:      #5b9bd5;
   --font-mono: "IBM Plex Mono", monospace;
   --font-sans: "IBM Plex Sans", sans-serif;
 }
@@ -36,7 +37,6 @@ header {
   font-size: 13px;
   color: var(--muted);
 }
-
 .site-title { color: var(--accent); letter-spacing: 0.05em; }
 .clock      { color: var(--text); }
 
@@ -49,16 +49,8 @@ main {
   max-width: 1200px;
   margin: 0 auto;
 }
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.row.full {
-  grid-template-columns: 1fr;
-}
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.row.full { grid-template-columns: 1fr; }
 
 /* ── Card ──────────────────────────────────────────────── */
 .card {
@@ -69,7 +61,6 @@ main {
   min-height: 100px;
   transition: border-color 0.2s;
 }
-
 .card:hover { border-color: #3a3a3a; }
 
 .card-label {
@@ -80,7 +71,6 @@ main {
   color: var(--muted);
   margin-bottom: 12px;
 }
-
 .card-value {
   font-family: var(--font-mono);
   font-size: 28px;
@@ -88,7 +78,6 @@ main {
   color: var(--accent);
   line-height: 1;
 }
-
 .card-sub {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -104,11 +93,107 @@ main {
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
 }
-
 .rate-row:last-child { border-bottom: none; }
-
 .rate-pair { color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
 .rate-val  { font-family: var(--font-mono); font-weight: 600; color: var(--text); }
+
+/* ── Weather ───────────────────────────────────────────── */
+.weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.weather-city-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.weather-city {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+.city-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.city-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.badge-rain  { background: rgba(224,82,82,0.15); color: var(--red); border: 1px solid rgba(224,82,82,0.3); }
+.badge-clear { background: rgba(240,165,0,0.1);  color: var(--accent); border: 1px solid rgba(240,165,0,0.2); }
+
+.weather-body { margin-bottom: 12px; }
+.weather-temp {
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+.weather-desc  { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.weather-range { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 4px; }
+.weather-footer {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+/* ── GitHub ────────────────────────────────────────────── */
+.gh-item {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  grid-template-rows: auto auto;
+  gap: 2px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.gh-item:last-child { border-bottom: none; }
+.gh-item:hover .gh-repo { color: var(--accent); }
+
+.gh-type {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-top: 2px;
+  grid-row: 1;
+}
+.gh-repo {
+  font-size: 13px;
+  color: var(--text);
+  grid-row: 1;
+  transition: color 0.15s;
+}
+.gh-detail {
+  font-size: 12px;
+  color: var(--muted);
+  grid-column: 2;
+  grid-row: 2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* ── Hacker News ───────────────────────────────────────── */
 .hn-item {
@@ -121,10 +206,8 @@ main {
   cursor: pointer;
   transition: color 0.15s;
 }
-
 .hn-item:last-child { border-bottom: none; }
 .hn-item:hover .hn-title { color: var(--accent); }
-
 .hn-rank  { font-family: var(--font-mono); font-size: 12px; color: var(--muted); padding-top: 2px; }
 .hn-title { font-size: 13px; line-height: 1.5; color: var(--text); }
 .hn-score { font-family: var(--font-mono); font-size: 11px; color: var(--muted); white-space: nowrap; padding-top: 2px; }
