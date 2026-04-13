@@ -55,7 +55,7 @@ def get_weather(city_key="fortaleza"):
             params={
                 "latitude": city["lat"],
                 "longitude": city["lon"],
-                "current": "temperature_2m,weathercode,precipitation",
+                "current": "temperature_2m,weather_code,precipitation",
                 "daily": "temperature_2m_max,temperature_2m_min,precipitation_probability_max",
                 "timezone": "America/Fortaleza",
                 "forecast_days": 1,
@@ -65,15 +65,19 @@ def get_weather(city_key="fortaleza"):
         r.raise_for_status()
         data = r.json()
 
-        current = data["current"]
-        daily   = data["daily"]
+        # Extração resiliente para evitar KeyErrors
+        current = data.get("current", {})
+        daily   = data.get("daily", {})
 
-        code        = current["weathercode"]
-        temp        = current["temperature_2m"]
-        precip      = current["precipitation"]
-        temp_max    = daily["temperature_2m_max"][0]
-        temp_min    = daily["temperature_2m_min"][0]
-        precip_prob = daily["precipitation_probability_max"][0]
+        # Open-Meteo pode retornar 'weather_code' ou 'weathercode'
+        code        = current.get("weather_code") if current.get("weather_code") is not None else current.get("weathercode", 0)
+        temp        = current.get("temperature_2m", 0)
+        precip      = current.get("precipitation", 0)
+        
+        # Garante que daily tenha os dados esperados
+        temp_max    = daily.get("temperature_2m_max", [0])[0] if daily.get("temperature_2m_max") else 0
+        temp_min    = daily.get("temperature_2m_min", [0])[0] if daily.get("temperature_2m_min") else 0
+        precip_prob = daily.get("precipitation_probability_max", [0])[0] if daily.get("precipitation_probability_max") else 0
 
         description, category = WMO_CODES.get(code, ("Condição desconhecida", "clear"))
 
@@ -90,4 +94,5 @@ def get_weather(city_key="fortaleza"):
             "error":       None,
         }
     except Exception as e:
+        # Se for erro de timeout ou conexão, retornamos algo mais amigável no log se possível
         return {"city": city["name"], "error": str(e)}
