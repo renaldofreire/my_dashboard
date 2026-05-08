@@ -84,9 +84,9 @@
     function updateClock() {
       const now = new Date();
       
-      // Hora principal
+      // Hora principal (24h)
       document.getElementById("clock").textContent =
-        now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
       
       // Data (DD.MM)
       const day = String(now.getDate()).padStart(2, '0');
