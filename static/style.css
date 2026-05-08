@@ -39,51 +39,21 @@ header {
 }
 .site-title { color: var(--accent); letter-spacing: 0.05em; }
 
-/* ── G-SHOCK Clock ────────────────────────────────────── */
-.gshock-clock {
-  background: #1a1a1a;
-  padding: 4px;
-  border-radius: 8px;
-  border: 2px solid #333;
-  box-shadow: inset 0 0 10px #000;
-}
-.gshock-bezel {
-  background: #000;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #444;
-}
-.gshock-display {
-  background: #222;
-  padding: 8px 12px;
-  border-radius: 2px;
-  border: 1px solid #111;
-  color: var(--accent);
-  font-family: 'Orbitron', sans-serif;
-  min-width: 160px;
-  text-align: center;
-  box-shadow: inset 0 0 8px rgba(0,0,0,1);
+/* ── Clock ────────────────────────────────────────────── */
+.clock-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
+  font-family: var(--font-mono);
 }
-.gshock-top {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  font-size: 9px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  opacity: 0.7;
-  border-bottom: 1px solid rgba(240,165,0,0.15);
-  padding-bottom: 3px;
-  letter-spacing: 0.5px;
+#clock {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
 }
-.gshock-main {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  line-height: 1.2;
+#date {
+  font-size: 11px;
+  color: var(--muted);
 }
 
 /* ── Layout ────────────────────────────────────────────── */
