@@ -13,6 +13,14 @@ def index():
 
 
 # --- Crypto & Câmbio ---
+@bp.route("/api/finances")
+def finances():
+    return jsonify({
+        "bitcoin": get_bitcoin_price(),
+        "exchange": get_exchange_rates()
+    })
+
+
 @bp.route("/api/bitcoin")
 def bitcoin():
     return jsonify(get_bitcoin_price())

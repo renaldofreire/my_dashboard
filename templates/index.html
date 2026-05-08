@@ -7,6 +7,7 @@
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
@@ -18,25 +19,15 @@
 
   <main>
 
-    <!-- Row 1: Bitcoin + Câmbio -->
+    <!-- Row 1: Finanças + Clima -->
     <section class="row">
-      <div class="card" id="bitcoin-card"
-           hx-get="/api/bitcoin"
+      <div class="card" id="finances-card"
+           hx-get="/api/finances"
            hx-trigger="load, every 300s"
            hx-swap="innerHTML">
-        <span class="loading">carregando bitcoin…</span>
+        <span class="loading">carregando finanças…</span>
       </div>
 
-      <div class="card" id="exchange-card"
-           hx-get="/api/exchange"
-           hx-trigger="load, every 300s"
-           hx-swap="innerHTML">
-        <span class="loading">carregando câmbio…</span>
-      </div>
-    </section>
-
-    <!-- Row 2: Clima -->
-    <section class="row full">
       <div class="card" id="weather-card"
            hx-get="/api/weather?city=fortaleza"
            hx-trigger="load, every 600s"
@@ -45,7 +36,7 @@
       </div>
     </section>
 
-    <!-- Row 3: GitHub -->
+    <!-- Row 2: GitHub -->
     <section class="row full">
       <div class="card" id="github-card"
            hx-get="/api/github"
@@ -66,6 +57,17 @@
     </section>
 
   </main>
+
+  <footer>
+    Feito com algumas xícaras de café, by Renaldo Freire
+    <svg class="coffee-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+      <line x1="6" y1="1" x2="6" y2="4"></line>
+      <line x1="10" y1="1" x2="10" y2="4"></line>
+      <line x1="14" y1="1" x2="14" y2="4"></line>
+    </svg>
+  </footer>
 
   <script>
     // ── Relógio ──────────────────────────────────────────
@@ -136,26 +138,39 @@
       try {
         const data = JSON.parse(evt.detail.xhr.responseText);
 
-        if (id === "bitcoin-card") {
-          el.innerHTML = data.error
-            ? `<span class="error">Bitcoin indisponível</span>`
-            : `<div class="card-label">Bitcoin</div>
-               <div class="card-value">$ ${data.usd.toLocaleString("en-US")}</div>
-               <div class="card-sub">USD</div>`;
-        }
+        if (id === "finances-card") {
+          const btc = data.bitcoin;
+          const xch = data.exchange;
 
-        if (id === "exchange-card") {
-          el.innerHTML = data.error
-            ? `<span class="error">Câmbio indisponível</span>`
-            : `<div class="card-label">Câmbio</div>
-               <div class="rate-row">
-                 <span class="rate-pair">USD → BRL</span>
-                 <span class="rate-val">R$ ${data.usd_brl.toFixed(2)}</span>
-               </div>
-               <div class="rate-row">
-                 <span class="rate-pair">GBP → BRL</span>
-                 <span class="rate-val">R$ ${data.gbp_brl.toFixed(2)}</span>
-               </div>`;
+          let html = `<div class="card-label">Finanças</div>`;
+          
+          // Bitcoin section
+          if (btc.error) {
+            html += `<span class="error">Bitcoin indisponível</span>`;
+          } else {
+            html += `
+              <div class="finance-section">
+                <div class="card-value">$ ${btc.usd.toLocaleString("en-US")}</div>
+                <div class="card-sub">BITCOIN (USD)</div>
+              </div>`;
+          }
+
+          // Exchange section
+          if (xch.error) {
+            html += `<hr class="card-sep"><span class="error">Câmbio indisponível</span>`;
+          } else {
+            html += `
+              <hr class="card-sep">
+              <div class="rate-row">
+                <span class="rate-pair">USD → BRL</span>
+                <span class="rate-val">R$ ${xch.usd_brl.toFixed(2)}</span>
+              </div>
+              <div class="rate-row">
+                <span class="rate-pair">GBP → BRL</span>
+                <span class="rate-val">R$ ${xch.gbp_brl.toFixed(2)}</span>
+              </div>`;
+          }
+          el.innerHTML = html;
         }
 
         if (id === "weather-card") {

@@ -49,6 +49,29 @@ main {
   max-width: 1200px;
   margin: 0 auto;
 }
+
+/* ── Footer ────────────────────────────────────────────── */
+footer {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.coffee-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+}
+
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .row.full { grid-template-columns: 1fr; }
 
@@ -83,6 +106,14 @@ main {
   font-size: 12px;
   color: var(--muted);
   margin-top: 6px;
+}
+
+/* ── Finances & Separator ──────────────────────────────── */
+.finance-section { margin-bottom: 4px; }
+.card-sep {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 16px 0;
 }
 
 /* ── Exchange ──────────────────────────────────────────── */
