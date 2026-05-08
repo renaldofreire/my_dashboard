@@ -38,7 +38,47 @@ header {
   color: var(--muted);
 }
 .site-title { color: var(--accent); letter-spacing: 0.05em; }
-.clock      { color: var(--text); }
+
+/* ── G-SHOCK Clock ────────────────────────────────────── */
+.gshock-clock {
+  background: #1a1a1a;
+  padding: 4px;
+  border-radius: 8px;
+  border: 2px solid #333;
+  box-shadow: inset 0 0 10px #000;
+}
+.gshock-bezel {
+  background: #000;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+}
+.gshock-display {
+  background: #222;
+  padding: 4px 8px;
+  border-radius: 2px;
+  border: 1px solid #111;
+  color: var(--accent);
+  font-family: 'Orbitron', sans-serif;
+  min-width: 140px;
+  text-align: center;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+}
+.gshock-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  opacity: 0.8;
+  border-bottom: 1px solid rgba(240,165,0,0.2);
+  padding-bottom: 2px;
+}
+.gshock-main {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
 
 /* ── Layout ────────────────────────────────────────────── */
 main {
